@@ -1,4 +1,4 @@
-# Usage
+## Usage
 
 ```
 schemer.sh [--catalog <oasis-catalog-file>] --xml <xml-file> --xsd <xsd-file>
