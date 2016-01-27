@@ -60,8 +60,8 @@ public class Schemer {
         options.addOption(catalogFileOption);
 
         CommandLineParser parser = new DefaultParser();
-        try {
 
+        try {
             CommandLine line = parser.parse(options, args);
             String xsdFile = line.getOptionValue("xsd");
             String xmlFile = line.getOptionValue("xml");
@@ -92,7 +92,14 @@ public class Schemer {
     }
 
     public void validate(String xml) throws SAXException, IOException {
+        ParseErrorHandler errorHandler = new ParseErrorHandler();
+        validator.setErrorHandler(errorHandler);
         validator.validate(new StreamSource(xml));
+        if (errorHandler.hasErrors()) {
+            for (String violation : errorHandler.getViolations()) {
+                System.out.println(violation);
+            }
+        }
     }
 
     public class Resolver implements LSResourceResolver {
