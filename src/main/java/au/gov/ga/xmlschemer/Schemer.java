@@ -2,7 +2,7 @@ package au.gov.ga.xmlschemer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -21,7 +21,6 @@ import org.apache.xerces.util.XMLCatalogResolver;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 public class Schemer {
 
@@ -68,17 +67,23 @@ public class Schemer {
             String catalogFile = line.getOptionValue("catalog");
 
             Schemer schemer = new Schemer(xsdFile, catalogFile);
-            schemer.validate(xmlFile);
+            List<String> violations = schemer.validate(xmlFile);
+
+            if (!violations.isEmpty()) {
+                for (String violation : violations) {
+                    System.err.println(violation);
+                }
+                System.exit(1);
+            }
         }
         catch (ParseException e) {
             System.err.println(e.getMessage());
             new HelpFormatter().printHelp(120, "schemer.sh", "", options, "", true);
-        }
-        catch (SAXParseException e) {
-            System.out.println(e.getMessage());
+            System.exit(1);
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -91,15 +96,11 @@ public class Schemer {
         validator = schema.newValidator();
     }
 
-    public void validate(String xml) throws SAXException, IOException {
+    public List<String> validate(String xml) throws SAXException, IOException {
         ParseErrorHandler errorHandler = new ParseErrorHandler();
         validator.setErrorHandler(errorHandler);
         validator.validate(new StreamSource(xml));
-        if (errorHandler.hasErrors()) {
-            for (String violation : errorHandler.getViolations()) {
-                System.out.println(violation);
-            }
-        }
+        return errorHandler.getViolations();
     }
 
     public class Resolver implements LSResourceResolver {
