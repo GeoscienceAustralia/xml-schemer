@@ -1,3 +1,7 @@
+## About
+
+XML Schemer is a catalog-aware Xerces-J CLI wrapper for XSD validation.
+
 ## Usage
 
 ```
