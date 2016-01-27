@@ -2,7 +2,7 @@
 
 ## About
 
-XML Schemer is a catalog-aware Xerces-J CLI wrapper for XSD validation.
+XML Schemer is a Xerces-J CLI wrapper for catalog-aware XSD validation.
 
 ## Usage
 
