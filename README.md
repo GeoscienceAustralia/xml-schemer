@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/GeoscienceAustralia/xml-schemer.svg?branch=master)](https://travis-ci.org/GeoscienceAustralia/xml-schemer)
+
 ## About
 
 XML Schemer is a catalog-aware Xerces-J CLI wrapper for XSD validation.
