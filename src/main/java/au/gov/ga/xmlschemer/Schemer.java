@@ -55,9 +55,9 @@ public class Schemer {
             .build();
 
         Options options = new Options();
-        options.addOption(xmlFileOption);
-        options.addOption(xsdFileOption);
         options.addOption(catalogFileOption);
+        options.addOption(xsdFileOption);
+        options.addOption(xmlFileOption);
 
         CommandLineParser parser = new DefaultParser();
 
