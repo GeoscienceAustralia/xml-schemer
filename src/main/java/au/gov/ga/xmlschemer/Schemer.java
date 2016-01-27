@@ -72,7 +72,7 @@ public class Schemer {
         }
         catch (ParseException e) {
             System.err.println(e.getMessage());
-            new HelpFormatter().printHelp(120, "schemer", "", options, "", true);
+            new HelpFormatter().printHelp(120, "schemer.sh", "", options, "", true);
         }
         catch (SAXParseException e) {
             System.out.println(e.getMessage());

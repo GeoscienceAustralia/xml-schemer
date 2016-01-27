@@ -46,6 +46,21 @@
                     <mainClass>au.gov.ga.xmlschemer.Schemer</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>xml-schemer</finalName>
+                    <outputDirectory>lib</outputDirectory>
+                    <archive>
+                        <manifest>
+                            <mainClass>au.gov.ga.xmlschemer.Schemer</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
