@@ -1,6 +1,11 @@
-# xml-schemer
+# Usage
 
-Command line XML schema validation tool based on xerces-j
+```
+schemer.sh [--catalog <oasis-catalog-file>] --xml <xml-file> --xsd <xsd-file>
+    --catalog <oasis-catalog-file>   schema catalog file
+    --xml <xml-file>                 XML file
+    --xsd <xsd-file>                 XSD file
+```
 
 ## Contact Information
 
