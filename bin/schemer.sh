@@ -9,5 +9,11 @@ if [ -n "${http_proxy}" ]; then
     PROXY_FOR_JAVA="-Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_PORT}"
 fi
 
-${JAVA_HOME}/bin/java ${PROXY_FOR_JAVA} -jar ${JAR} $@
+if [ -n "${JAVA_HOME}" ]; then
+    JAVA_CMD="${JAVA_HOME}/bin/java"
+else
+    JAVA_CMD="java"
+fi
+
+${JAVA_CMD} ${PROXY_FOR_JAVA} -jar ${JAR} $@
 
