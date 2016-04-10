@@ -14,6 +14,10 @@
             systemId="http://www.w3.org/1999/xlink.xsd"
             uri="file:./xlink.xsd"/>
 
+    <uri
+            name="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml"
+            uri="file:./codelist/gmxCodelists.xml"/>
+
     <rewriteSystem
             systemIdStartString="http://www.isotc211.org/2005/"
             rewritePrefix="file:./iso-19139-20070417/"/>
