@@ -1,14 +1,12 @@
 package au.gov.ga.xmlschemer;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
-import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -17,14 +15,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.xerces.util.XMLCatalogResolver;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
-import org.xml.sax.SAXException;
 
 public class Schemer {
-
-    private Validator validator;
 
     public static void main(String[] args) {
         Option xsdFileOption = Option.builder(null)
@@ -62,14 +54,14 @@ public class Schemer {
 
         try {
             CommandLine line = parser.parse(options, args);
-            String xsdFile = line.getOptionValue("xsd");
-            String xmlFile = line.getOptionValue("xml");
+            Source xsdFile = new StreamSource(line.getOptionValue("xsd"));
+            Source xmlFile = new StreamSource(line.getOptionValue("xml"));
             String catalogFile = line.getOptionValue("catalog");
 
-            Schemer schemer = new Schemer(xsdFile, catalogFile);
-            List<String> violations = schemer.validate(xmlFile);
+            SchemaValidator schemaValidator = new SchemaValidator(xsdFile, catalogFile);
+            List<String> violations = schemaValidator.validate(xmlFile);
 
-            if (!violations.isEmpty()) {
+           if (!violations.isEmpty()) {
                 for (String violation : violations) {
                     System.err.println(violation);
                 }
@@ -86,37 +78,5 @@ public class Schemer {
             System.exit(1);
         }
     }
-
-    public Schemer(String xsd, String catalog) throws SAXException {
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        if (catalog != null) {
-            factory.setResourceResolver(new Resolver(new String[]{catalog}));
-        }
-        Schema schema = factory.newSchema(new File(xsd));
-        validator = schema.newValidator();
-    }
-
-    public List<String> validate(String xml) throws SAXException, IOException {
-        ParseErrorHandler errorHandler = new ParseErrorHandler();
-        validator.setErrorHandler(errorHandler);
-        validator.validate(new StreamSource(xml));
-        return errorHandler.getViolations();
-    }
-
-    public class Resolver implements LSResourceResolver {
-
-        private XMLCatalogResolver resolver;
-
-        public Resolver(String[] catalogs) {
-            resolver = new XMLCatalogResolver(catalogs);
-        }
-
-        public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
-            if (publicId == null && !systemId.startsWith("http://")) { // handle local schema includes
-                systemId = namespaceURI + "/" + systemId;
-            }
-            LSInput input = resolver.resolveResource(type, namespaceURI, publicId, systemId, baseURI);
-            return input;
-        }
-    }
 }
+
