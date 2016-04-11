@@ -18,6 +18,10 @@ public class SchemaValidator {
 
     private Validator validator;
 
+    public SchemaValidator(Source xsd) throws SAXException {
+        this(xsd, null);
+    }
+
     public SchemaValidator(Source xsd, String catalogFileName) throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         if (catalogFileName != null) { // TODO: check for ""
