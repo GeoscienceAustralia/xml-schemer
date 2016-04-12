@@ -10,11 +10,15 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.xerces.util.XMLCatalogResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.SAXException;
 
 public class SchemaValidator {
+
+    private final static Logger log = LoggerFactory.getLogger(SchemaValidator.class);
 
     private Validator validator;
 
@@ -30,10 +34,18 @@ public class SchemaValidator {
         Schema schema = factory.newSchema(xsd);
         validator = schema.newValidator();
     }
-    public List<String> validate(Source xml) throws SAXException, IOException {
+
+    public List<String> validate(Source xml) throws IOException {
         ParseErrorHandler errorHandler = new ParseErrorHandler();
         validator.setErrorHandler(errorHandler);
-        validator.validate(xml);
+        try {
+            validator.validate(xml);
+        }
+        catch (SAXException e) {
+            // SAXException is thrown in case of a fatal error,
+            // which would have already handled in ParseErrorHandler.
+            log.warn("Fatal parsing error, already accounted for in " + ParseErrorHandler.class.getName(), e);
+        }
         return errorHandler.getViolations();
     }
 
@@ -53,3 +65,4 @@ public class SchemaValidator {
         }
     }
 }
+
