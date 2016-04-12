@@ -16,11 +16,20 @@ import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.SAXException;
 
+/**
+ * XML schema validation utility. Given a schema and optionally an OASIS catalog file,
+ * return a list of schema violations. The code is thread-safe and re-entrant,
+ * and you are encouraged to cache and re-use SchemaValidator objects to avoid re-parsing
+ * the supplied XSD files.
+ */
 public class SchemaValidator {
+    // Schema factories and validators in javax.xml.validation are not thread-safe,
+    // so keep their instances local to methods.
 
     private final static Logger log = LoggerFactory.getLogger(SchemaValidator.class);
 
-    private Validator validator;
+    // Schemas, on the other hand, are thread-safe.
+    private Schema schema;
 
     public SchemaValidator(Source xsd) throws SAXException {
         this(xsd, null);
@@ -31,12 +40,12 @@ public class SchemaValidator {
         if (catalogFileName != null) { // TODO: check for ""
             factory.setResourceResolver(new Resolver(new String[]{catalogFileName}));
         }
-        Schema schema = factory.newSchema(xsd);
-        validator = schema.newValidator();
+        schema = factory.newSchema(xsd);
     }
 
     public List<String> validate(Source xml) throws IOException {
         ParseErrorHandler errorHandler = new ParseErrorHandler();
+        Validator validator = schema.newValidator();
         validator.setErrorHandler(errorHandler);
         try {
             validator.validate(xml);
@@ -49,7 +58,7 @@ public class SchemaValidator {
         return errorHandler.getViolations();
     }
 
-    public class Resolver implements LSResourceResolver {
+    public static class Resolver implements LSResourceResolver {
 
         private XMLCatalogResolver resolver;
 
