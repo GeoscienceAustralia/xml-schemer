@@ -22,9 +22,11 @@ import net.sf.saxon.s9api.XsltTransformer;
 public class SchematronValidator {
 
     private StreamSource schematron;
+    private String catalogFileName;
 
-    public SchematronValidator(StreamSource schematron) {
+    public SchematronValidator(StreamSource schematron, String catalogFileName) {
         this.schematron = schematron;
+        this.catalogFileName = catalogFileName;
     }
 
     public List<String> validate(StreamSource xml) throws Exception {
@@ -34,6 +36,8 @@ public class SchematronValidator {
 
         // TODO: consolidate with catalog loading in SchemaValidator
         CatalogManager catalogManager = new CatalogManager();
+        catalogManager.setIgnoreMissingProperties(true);
+        catalogManager.setCatalogFiles(catalogFileName);
         transformer.setURIResolver(new CatalogResolver(catalogManager));
 
         transformer.setSource(xml);

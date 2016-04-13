@@ -10,10 +10,16 @@ import org.junit.Test;
 public class SchematronValidatorTest {
 
     private StreamSource schematron = new StreamSource(getResourceStream("codeListValidation.sch.xsl"));
-    private SchematronValidator validator = new SchematronValidator(schematron);
+    private SchematronValidator validator = new SchematronValidator(schematron, getResourceFileName("catalog.xml"));
 
-    private static InputStream getResourceStream(String fileName) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    private static ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    private static InputStream getResourceStream(String resource) {
+        return classLoader.getResourceAsStream(resource);
+    }
+
+    private static String getResourceFileName(String resource) {
+        return classLoader.getResource(resource).getFile();
     }
 
     private List<String> getViolations(String xmlFileName) throws Exception {
