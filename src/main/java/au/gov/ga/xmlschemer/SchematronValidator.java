@@ -3,7 +3,7 @@ package au.gov.ga.xmlschemer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.Source;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
@@ -21,15 +21,15 @@ import net.sf.saxon.s9api.XsltTransformer;
 
 public class SchematronValidator {
 
-    private StreamSource schematron;
+    private Source schematron;
     private String catalogFileName;
 
-    public SchematronValidator(StreamSource schematron, String catalogFileName) {
+    public SchematronValidator(Source schematron, String catalogFileName) {
         this.schematron = schematron;
         this.catalogFileName = catalogFileName;
     }
 
-    public List<String> validate(StreamSource xml) throws Exception {
+    public List<String> validate(Source xml) throws Exception {
         XsltTransformer transformer = new Processor(false).newXsltCompiler()
             .compile(schematron)
             .load();
