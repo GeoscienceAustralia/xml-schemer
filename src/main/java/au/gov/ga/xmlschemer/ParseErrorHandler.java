@@ -12,29 +12,31 @@ public class ParseErrorHandler implements ErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ParseErrorHandler.class);
 
-    private List<String> violations = new ArrayList<String>();
+    private List<Violation> violations = new ArrayList<>();
 
     public void error(SAXParseException e) {
-        violations.add(prepareMessage(e));
+        violations.add(extractViolation(e));
     }
 
     public void fatalError(SAXParseException e) {
-        violations.add(prepareMessage(e));
+        violations.add(extractViolation(e));
     }
 
     public void warning(SAXParseException e) {
-        log.warn(prepareMessage(e));
+        Violation v = extractViolation(e);
+        log.warn(v.getLocation() + ":" + v.getMessage());
     }
 
     public boolean hasErrors() {
         return !violations.isEmpty();
     }
 
-    public List<String> getViolations() {
+    public List<Violation> getViolations() {
         return violations;
     }
 
-    private String prepareMessage(SAXParseException e) {
-        return e.getSystemId() + ":" + e.getLineNumber() + ":" + e.getColumnNumber() + " " + e.getMessage();
+    private Violation extractViolation(SAXParseException e) {
+        return new Violation(e.getSystemId() + ":" + e.getLineNumber() + ":" + e.getColumnNumber(),
+                e.getMessage());
     }
 }

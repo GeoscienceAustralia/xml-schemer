@@ -74,10 +74,10 @@ public class Schemer {
                 String catalogFile = schemaCommandOptions.catalogFileName;
 
                 SchemaValidator schemaValidator = new SchemaValidator(xsdFile, catalogFile);
-                List<String> violations = schemaValidator.validate(xmlFile);
+                List<Violation> violations = schemaValidator.validate(xmlFile);
 
                 if (!violations.isEmpty()) {
-                    for (String violation : violations) {
+                    for (Violation violation : violations) {
                         System.err.println(violation);
                     }
                     System.exit(1);
@@ -89,10 +89,10 @@ public class Schemer {
                     abort("Catalog file " + schematronCommandOptions.catalogFileName + " does not exist.");
                 }
                 SchematronValidator schematronValidator = new SchematronValidator(xsltFile, schematronCommandOptions.catalogFileName);
-                List<String> violations = schematronValidator.validate(xmlFile);
+                List<Violation> violations = schematronValidator.validate(xmlFile);
 
                 if (!violations.isEmpty()) {
-                    for (String violation : violations) {
+                    for (Violation violation : violations) {
                         System.err.println(violation);
                     }
                     System.exit(1);

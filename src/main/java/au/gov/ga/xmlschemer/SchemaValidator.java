@@ -7,7 +7,6 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.apache.xerces.util.XMLCatalogResolver;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ import org.xml.sax.SAXException;
  * and you are encouraged to cache and re-use SchemaValidator objects to avoid re-parsing
  * the supplied XSD files.
  */
-public class SchemaValidator {
+public class SchemaValidator implements Validator {
     // Schema factories and validators in javax.xml.validation are not thread-safe,
     // so keep their instances local to methods.
 
@@ -43,9 +42,9 @@ public class SchemaValidator {
         schema = factory.newSchema(xsd);
     }
 
-    public List<String> validate(Source xml) throws IOException {
+    public List<Violation> validate(Source xml) throws IOException {
         ParseErrorHandler errorHandler = new ParseErrorHandler();
-        Validator validator = schema.newValidator();
+        javax.xml.validation.Validator validator = schema.newValidator();
         validator.setErrorHandler(errorHandler);
         try {
             validator.validate(xml);
@@ -58,6 +57,8 @@ public class SchemaValidator {
         return errorHandler.getViolations();
     }
 
+
+    // TODO: is this really needed?
     public static class Resolver implements LSResourceResolver {
 
         private XMLCatalogResolver resolver;

@@ -14,7 +14,7 @@ public class SchemaValidatorTest {
         return classLoader.getResource(fileName).getFile();
     }
 
-    private List<String> getViolations(String xsdFileName, String xmlFileName) throws Exception {
+    private List<Violation> getViolations(String xsdFileName, String xmlFileName) throws Exception {
         StreamSource xsd = new StreamSource(getFullFileName(xsdFileName));
         StreamSource xml = new StreamSource(getFullFileName(xmlFileName));
         String catalog = getFullFileName("catalog.xml");

@@ -22,7 +22,7 @@ public class SchematronValidatorTest {
         return classLoader.getResource(resource).getFile();
     }
 
-    private List<String> getViolations(String xmlFileName) throws Exception {
+    private List<Violation> getViolations(String xmlFileName) throws Exception {
         StreamSource xml = new StreamSource(getResourceStream(xmlFileName));
         return validator.validate(xml);
     }

@@ -1,11 +1,13 @@
 package au.gov.ga.xmlschemer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.transform.Source;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.xerces.dom.DocumentImpl;
@@ -17,9 +19,10 @@ import org.w3c.dom.NodeList;
 
 import net.sf.saxon.s9api.DOMDestination;
 import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XsltTransformer;
 
-public class SchematronValidator {
+public class SchematronValidator implements Validator {
 
     private Source schematron;
     private String catalogFileName;
@@ -29,35 +32,40 @@ public class SchematronValidator {
         this.catalogFileName = catalogFileName;
     }
 
-    public List<String> validate(Source xml) throws Exception {
-        XsltTransformer transformer = new Processor(false).newXsltCompiler()
-            .compile(schematron)
-            .load();
+    public List<Violation> validate(Source xml) throws IOException {
+        try {
+            XsltTransformer transformer = new Processor(false).newXsltCompiler()
+                .compile(schematron)
+                .load();
 
-        // TODO: consolidate with catalog loading in SchemaValidator
-        CatalogManager catalogManager = new CatalogManager();
-        catalogManager.setIgnoreMissingProperties(true);
-        catalogManager.setCatalogFiles(catalogFileName);
-        transformer.setURIResolver(new CatalogResolver(catalogManager));
+            // TODO: consolidate with catalog loading in SchemaValidator
+            CatalogManager catalogManager = new CatalogManager();
+            catalogManager.setIgnoreMissingProperties(true);
+            catalogManager.setCatalogFiles(catalogFileName);
+            transformer.setURIResolver(new CatalogResolver(catalogManager));
 
-        transformer.setSource(xml);
-        Document document = new DocumentImpl();
-        transformer.setDestination(new DOMDestination(document));
+            transformer.setSource(xml);
+            Document document = new DocumentImpl();
+            transformer.setDestination(new DOMDestination(document));
 
-        transformer.transform();
+            transformer.transform();
 
-        XPath path = XPathFactory.newInstance().newXPath();
-        NodeList failedAsserts = (NodeList) path.evaluate("//*[local-name()='failed-assert']", document, XPathConstants.NODESET);
+            XPath path = XPathFactory.newInstance().newXPath();
+            NodeList failedAsserts = (NodeList) path.evaluate("//*[local-name()='failed-assert']", document, XPathConstants.NODESET);
 
-        List<String> violations = new ArrayList<>();
+            List<Violation> violations = new ArrayList<>();
 
-        for (int i = 0; i < failedAsserts.getLength(); i++) {
-            Node failedAssert = failedAsserts.item(i);
-            violations.add(
-                    "location: " + path.evaluate("@location", failedAssert) + " " +
-                    "message: "  + path.evaluate("text()",    failedAssert)
-            );
+            for (int i = 0; i < failedAsserts.getLength(); i++) {
+                Node failedAssert = failedAsserts.item(i);
+                violations.add(new Violation(
+                    path.evaluate("@location", failedAssert),
+                    path.evaluate("text()",    failedAssert)
+                ));
+            }
+            return violations;
         }
-        return violations;
+        catch (SaxonApiException | XPathExpressionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
