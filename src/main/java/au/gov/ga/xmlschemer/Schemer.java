@@ -68,43 +68,39 @@ public class Schemer {
         try {
             if (globalOptions.help) {
                 commander.usage();
-            } else if (schemaCommandName.equals(commander.getParsedCommand())) {
-                Source xsdFile = new StreamSource(schemaCommandOptions.xsdFileName);
-                Source xmlFile = new StreamSource(schemaCommandOptions.xmlFileName);
-                String catalogFile = schemaCommandOptions.catalogFileName;
-
-                SchemaValidator schemaValidator = new SchemaValidator(xsdFile, catalogFile);
-                List<Violation> violations = schemaValidator.validate(xmlFile);
-
-                if (!violations.isEmpty()) {
-                    for (Violation violation : violations) {
-                        System.err.println(violation);
-                    }
-                    System.exit(1);
-                }
-            } else if (schematronCommandName.equals(commander.getParsedCommand())) {
-                Source xsltFile = new StreamSource(schematronCommandOptions.xsltFileName);
-                Source xmlFile = new StreamSource(schematronCommandOptions.xmlFileName);
-                if (!new File(schematronCommandOptions.catalogFileName).exists()) {
-                    abort("Catalog file " + schematronCommandOptions.catalogFileName + " does not exist.");
-                }
-                SchematronValidator schematronValidator = new SchematronValidator(xsltFile, schematronCommandOptions.catalogFileName);
-                List<Violation> violations = schematronValidator.validate(xmlFile);
-
-                if (!violations.isEmpty()) {
-                    for (Violation violation : violations) {
-                        System.err.println(violation);
-                    }
-                    System.exit(1);
-                }
             } else {
-                commander.usage();
+                CommandOptions commandOptions = (CommandOptions) getCommand(commander);
+
+                if (commandOptions instanceof SchemaCommandOptions || commandOptions instanceof SchematronCommandOptions) {
+                    Source xmlFile = new StreamSource(commandOptions.xmlFileName);
+                    Validator validator = null;
+                    if (commandOptions instanceof SchemaCommandOptions) {
+                        SchemaCommandOptions options = (SchemaCommandOptions) commandOptions;
+                        Source xsdFile = new StreamSource(options.xsdFileName);
+                        validator = new SchemaValidator(xsdFile, options.catalogFileName);
+                    } else {
+                        SchematronCommandOptions options = (SchematronCommandOptions) commandOptions;
+                        Source xsltFile = new StreamSource(options.xsltFileName);
+                        validator = new SchematronValidator(xsltFile, options.catalogFileName);
+                    }
+                    List<Violation> violations = validator.validate(xmlFile);
+                    if (!violations.isEmpty()) {
+                        violations.forEach(System.err::println);
+                        System.exit(1);
+                    }
+                } else {
+                    commander.usage();
+                }
             }
         }
         catch (Throwable e) {
             log.error("Unexpected error", e);
             System.exit(1);
         }
+    }
+
+    private static Object getCommand(JCommander commander) {
+        return commander.getCommands().get(commander.getParsedCommand()).getObjects().get(0);
     }
 
     public static class FileValidator implements IParameterValidator {
