@@ -18,6 +18,8 @@
     <properties>
         <targetJdk>1.8</targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
+        <checker.version>2.0.0</checker.version>
     </properties>
     <build>
         <finalName>xml-schemer.jar</finalName>
@@ -29,6 +31,12 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <compilerVersion>1.8</compilerVersion>
+                    <annotationProcessors>
+                        <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+                    </annotationProcessors>
+                    <compilerArgs>
+                        <arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -64,6 +72,22 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>${checker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker</artifactId>
+            <version>${checker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>jdk8</artifactId>
+            <version>${checker.version}</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
