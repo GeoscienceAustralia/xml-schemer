@@ -6,6 +6,8 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,24 +30,25 @@ public class Schemer {
 
     private static class CommandOptions {
         @Parameter(names = "--xml", description = "XML file to validate", arity = 1, required = true, validateWith = FileValidator.class)
-        public String xmlFileName;
+        public @Nullable String xmlFileName;
 
         @Parameter(names = "--catalog", description = "OASIS catalog file", arity = 1, validateWith = FileValidator.class)
-        public String catalogFileName;
+        public @Nullable String catalogFileName;
     }
 
     @Parameters(commandDescription = "Run schema validation")
     private static class SchemaCommandOptions extends CommandOptions {
         @Parameter(names = "--xsd", description = "XSD schema file", arity = 1, required = true, validateWith = FileValidator.class)
-        public String xsdFileName;
+        public @Nullable String xsdFileName;
     }
 
     @Parameters(commandDescription = "Run schematron validation")
     private static class SchematronCommandOptions extends CommandOptions {
         @Parameter(names = "--xslt", description = "Schematron XSLT file", arity = 1, required = true, validateWith = FileValidator.class)
-        public String xsltFileName;
+        public @Nullable String xsltFileName;
     }
 
+    @SuppressWarnings("cast.unsafe")
     public static void main(String[] args) {
 
         GlobalOptions globalOptions = new GlobalOptions();
@@ -72,15 +75,15 @@ public class Schemer {
                 CommandOptions commandOptions = (CommandOptions) getCommand(commander);
 
                 if (commandOptions instanceof SchemaCommandOptions || commandOptions instanceof SchematronCommandOptions) {
-                    Source xmlFile = new StreamSource(commandOptions.xmlFileName);
+                    Source xmlFile = new StreamSource((@NonNull String) commandOptions.xmlFileName);
                     Validator validator = null;
                     if (commandOptions instanceof SchemaCommandOptions) {
                         SchemaCommandOptions options = (SchemaCommandOptions) commandOptions;
-                        Source xsdFile = new StreamSource(options.xsdFileName);
+                        Source xsdFile = new StreamSource((@NonNull String) options.xsdFileName);
                         validator = new SchemaValidator(xsdFile, options.catalogFileName);
                     } else {
                         SchematronCommandOptions options = (SchematronCommandOptions) commandOptions;
-                        Source xsltFile = new StreamSource(options.xsltFileName);
+                        Source xsltFile = new StreamSource((@NonNull String) options.xsltFileName);
                         validator = new SchematronValidator(xsltFile, options.catalogFileName);
                     }
                     List<Violation> violations = validator.validate(xmlFile);

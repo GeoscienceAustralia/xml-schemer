@@ -9,6 +9,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.apache.xerces.util.XMLCatalogResolver;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.ls.LSInput;
@@ -30,11 +31,7 @@ public class SchemaValidator implements Validator {
     // Schemas, on the other hand, are thread-safe.
     private Schema schema;
 
-    public SchemaValidator(Source xsd) throws SAXException {
-        this(xsd, null);
-    }
-
-    public SchemaValidator(Source xsd, String catalogFileName) throws SAXException {
+    public SchemaValidator(Source xsd, @Nullable String catalogFileName) throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         if (catalogFileName != null) { // TODO: check for ""
             factory.setResourceResolver(new Resolver(new String[]{catalogFileName}));
