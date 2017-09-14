@@ -4,7 +4,7 @@
     <groupId>au.gov.ga</groupId>
     <artifactId>xml-schemer</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>XML Schemer</name>
     <description>Command line XSD validation tool based on xerces-j</description>
     <scm>
